@@ -1,10 +1,9 @@
 import { ethers } from 'ethers';
-import { useEffect, useState } from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import deploy from './deploy';
 import Escrow from './Escrow';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
-
 export async function approve(escrowContract, signer) {
   const approveTxn = await escrowContract.connect(signer).approve();
   await approveTxn.wait();
@@ -14,11 +13,11 @@ function App() {
   const [escrows, setEscrows] = useState([]);
   const [account, setAccount] = useState();
   const [signer, setSigner] = useState();
-
   useEffect(() => {
     async function getAccounts() {
-      const accounts = await provider.send('eth_requestAccounts', []);
 
+      const accounts = await provider.send('eth_requestAccounts');
+      console.log(provider.network);
       setAccount(accounts[0]);
       setSigner(provider.getSigner());
     }
@@ -46,12 +45,13 @@ function App() {
             "✓ It's been approved!";
         });
 
-        await approve(escrowContract, signer);
+        await approve(escrowContract, arbiter);
       },
     };
 
     setEscrows([...escrows, escrow]);
   }
+
 
   return (
     <>
@@ -59,17 +59,17 @@ function App() {
         <h1> New Contract </h1>
         <label>
           Arbiter Address
-          <input type="text" id="arbiter" />
+          <input type="text" id="arbiter" defaultValue="0xbDA5747bFD65F08deb54cb465eB87D40e51B197E" />
         </label>
 
         <label>
           Beneficiary Address
-          <input type="text" id="beneficiary" />
+          <input type="text" id="beneficiary" defaultValue="0x29d733184E4f44774FCa7c7691183c9543ae42e4" />
         </label>
 
         <label>
           Deposit Amount (in Wei)
-          <input type="text" id="wei" />
+          <input type="text" id="wei" defaultValue={`${Math.pow(10, 18)}`} />
         </label>
 
         <div
